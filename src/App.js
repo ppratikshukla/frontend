@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import Sidebar from './components/Sidebar';
+import MobileNav from './components/MobileNav';
 import Dashboard from './pages/Dashboard';
 import SubjectsPage from './pages/SubjectsPage';
 import HistoryPage from './pages/HistoryPage';
@@ -52,6 +53,7 @@ const AppContent = () => {
       <main className="main-content">
         {renderPage()}
       </main>
+      <MobileNav activePage={activePage} onPageChange={(p) => { setHistorySubject(null); setActivePage(p); }} />
     </div>
   );
 };
