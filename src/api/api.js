@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'https://backend-site-m261.onrender.com/api',
+  baseURL: process.env.REACT_APP_API_URL ? `${process.env.REACT_APP_API_URL}/api` : 'https://backend-site-env.up.railway.app/api',
   headers: { 'Content-Type': 'application/json' }
 });
 
