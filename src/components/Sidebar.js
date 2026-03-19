@@ -5,6 +5,7 @@ const NAV_ITEMS = [
   { id: 'dashboard', icon: '📊', label: 'Dashboard' },
   { id: 'subjects', icon: '📚', label: 'My Subjects' },
   { id: 'history', icon: '📅', label: 'History' },
+  { id: 'about', icon: '👨‍💻', label: 'About' },
 ];
 
 const Sidebar = ({ activePage, onPageChange }) => {

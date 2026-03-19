@@ -7,6 +7,7 @@ import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import SubjectsPage from './pages/SubjectsPage';
 import HistoryPage from './pages/HistoryPage';
+import AboutPage from './pages/AboutPage';
 
 const AppContent = () => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -40,6 +41,7 @@ const AppContent = () => {
         />
       );
       case 'history': return <HistoryPage initialSubject={historySubject} onClearInitial={() => setHistorySubject(null)} />;
+      case 'about': return <AboutPage />;
       default: return <Dashboard onPageChange={setActivePage} />;
     }
   };
