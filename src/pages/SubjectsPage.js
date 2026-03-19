@@ -78,6 +78,17 @@ const AddSubjectModal = ({ onClose, onAdded }) => {
 };
 
 const SubjectCard = ({ subject, onMark, onDelete, onViewHistory }) => {
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString());
+
+  const today = new Date();
+  const yesterday = new Date(today); yesterday.setDate(today.getDate() - 1);
+  const dayBefore = new Date(today); dayBefore.setDate(today.getDate() - 2);
+
+  const dates = [
+    { label: "Today", value: today.toISOString() },
+    { label: "Yesterday", value: yesterday.toISOString() },
+    { label: "2 Days Ago", value: dayBefore.toISOString() }
+  ];
   const pct =
     subject.totalClasses > 0
       ? parseFloat(
@@ -88,6 +99,17 @@ const SubjectCard = ({ subject, onMark, onDelete, onViewHistory }) => {
   const isLow = subject.totalClasses > 0 && pct < 75;
 
   const color = pct >= 75 ? "#22c55e" : pct >= 50 ? "#f59e0b" : "#ef4444";
+
+  let statusText = "";
+  if (subject.totalClasses > 0) {
+    const r = 3 * subject.totalClasses - 4 * subject.presentCount;
+    if (r > 0) {
+      statusText = `Need ${r} more lecture${r > 1 ? 's' : ''} to reach 75%`;
+    } else {
+      const m = Math.floor((4 * subject.presentCount - 3 * subject.totalClasses) / 3);
+      statusText = `On track! Can miss ${m} class${m !== 1 ? 'es' : ''}`;
+    }
+  }
 
   return (
     <div className="subject-card" style={{ "--card-color": subject.color }}>
@@ -150,22 +172,37 @@ const SubjectCard = ({ subject, onMark, onDelete, onViewHistory }) => {
         </div>
       </div>
 
-      {isLow && <div className="badge-low">⚠️ Below 75%</div>}
+      {isLow && <div className="badge-low" style={{marginBottom: "5px"}}>⚠️ Below 75%</div>}
+      
+      {subject.totalClasses > 0 && (
+        <div style={{ fontSize: "0.8rem", color: "var(--text3)", marginBottom: "12px", textAlign: "center", fontWeight: "500" }}>
+          {statusText}
+        </div>
+      )}
 
       {/* Mark buttons */}
-      <div className="mark-row">
-        <button
-          className="mark-btn present"
-          onClick={() => onMark(subject._id, "present")}
+      <div className="mark-controls" style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+        <select 
+          value={selectedDate} 
+          onChange={(e) => setSelectedDate(e.target.value)}
+          style={{ padding: "6px", borderRadius: "6px", border: "1px solid var(--border)", background: "var(--surface)", color: "var(--text)" }}
         >
-          ✅ Present
-        </button>
-        <button
-          className="mark-btn absent"
-          onClick={() => onMark(subject._id, "absent")}
-        >
-          ❌ Absent
-        </button>
+          {dates.map(d => <option key={d.value} value={d.value}>{d.label}</option>)}
+        </select>
+        <div className="mark-row">
+          <button
+            className="mark-btn present"
+            onClick={() => onMark(subject._id, "present", selectedDate)}
+          >
+            ✅ Present
+          </button>
+          <button
+            className="mark-btn absent"
+            onClick={() => onMark(subject._id, "absent", selectedDate)}
+          >
+            ❌ Absent
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -184,9 +221,9 @@ const SubjectsPage = ({ onViewHistory }) => {
       .finally(() => setLoading(false));
   }, []);
 
-  const handleMark = async (id, status) => {
+  const handleMark = async (id, status, date) => {
     try {
-      const res = await subjectAPI.markAttendance(id, { status });
+      const res = await subjectAPI.markAttendance(id, { status, date });
       const updated = res.data.subject;
       setSubjects((prev) =>
         prev.map((s) => (s._id === id ? { ...s, ...updated } : s)),

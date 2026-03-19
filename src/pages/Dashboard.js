@@ -79,6 +79,17 @@ const Dashboard = ({ onPageChange }) => {
 
   const d = data || {};
 
+  let overallStatus = "";
+  if (d.totalClasses > 0) {
+    const rOverall = 3 * d.totalClasses - 4 * d.totalPresent;
+    if (rOverall > 0) {
+      overallStatus = `Need ${rOverall} more lecture${rOverall > 1 ? 's' : ''} to reach 75%`;
+    } else {
+      const mOverall = Math.floor((4 * d.totalPresent - 3 * d.totalClasses) / 3);
+      overallStatus = `On track! Can miss ${mOverall} class${mOverall !== 1 ? 'es' : ''}`;
+    }
+  }
+
   return (
     <div>
       <div className="page-header">
@@ -86,6 +97,11 @@ const Dashboard = ({ onPageChange }) => {
         <p className="page-subtitle">
           Here's your attendance overview for today
         </p>
+        {overallStatus && (
+          <p style={{ marginTop: "10px", fontSize: "0.95rem", fontWeight: "600", color: overallStatus.includes("Need") ? "#ef4444" : "#22c55e" }}>
+            {overallStatus}
+          </p>
+        )}
       </div>
 
       {/* Alerts */}
@@ -174,6 +190,9 @@ const Dashboard = ({ onPageChange }) => {
           >
             Subject Breakdown
           </h3>
+          <p style={{fontSize: "0.85rem", color: "var(--text3)", marginBottom: "15px"}}>
+            (Click on a subject to see more details)
+          </p>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {d.subjectStats.map((s) => (
               <div
@@ -242,6 +261,14 @@ const Dashboard = ({ onPageChange }) => {
                     ⚠️ Low
                   </span>
                 )}
+                <div style={{ fontSize: "0.75rem", color: "var(--text3)", marginTop: "4px" }}>
+                  {(() => {
+                    const r = 3 * s.totalClasses - 4 * s.presentCount;
+                    if (r > 0) return `Need ${r} more to reach 75%`;
+                    const m = Math.floor((4 * s.presentCount - 3 * s.totalClasses) / 3);
+                    return `Can miss ${m} class${m !== 1 ? 'es' : ''}`;
+                  })()}
+                </div>
               </div>
             ))}
           </div>
